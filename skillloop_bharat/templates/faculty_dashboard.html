@@ -1,0 +1,152 @@
+{% extends "base.html" %}
+
+{% block title %}Faculty Mentor Dashboard — SkillLoop Bharat{% endblock %}
+
+{% block content %}
+
+<!-- Faculty Mentor Banner -->
+<div class="card" style="border-left: 4px solid var(--teal-600); margin-bottom: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div>
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
+                <h1 style="font-family: var(--font-heading); font-size: 1.6rem; color: var(--navy-900);">
+                    {{ current_user.name }} 👩‍🏫
+                </h1>
+                <span class="badge badge-approved">Faculty Mentor</span>
+            </div>
+            <p style="color: var(--slate-600); font-size: 0.92rem;">
+                {{ current_user.title }} • {{ current_user.institution }}
+            </p>
+            <p style="font-size: 0.82rem; color: var(--slate-500); margin-top: 4px;">
+                Specialization: <strong>{{ current_user.specialization }}</strong>
+            </p>
+        </div>
+        <div style="background: var(--teal-50); border: 1px solid var(--teal-100); padding: 10px 16px; border-radius: var(--radius-md); text-align: right;">
+            <div style="font-size: 0.75rem; color: var(--teal-600); text-transform: uppercase; font-weight: 700;">Academic Role</div>
+            <div style="font-weight: 700; color: #0f766e; font-size: 0.9rem;">Reviewer & Capstone Guide</div>
+        </div>
+    </div>
+</div>
+
+<div class="section-header">
+    <div>
+        <h2 class="section-title">Student Projects Assigned for Guidance & Review</h2>
+        <p class="section-desc">Guide students on technical feasibility, review prototype code, and provide feedback before solutions are shared with industry partners.</p>
+    </div>
+</div>
+
+{% if problems %}
+<div style="display: flex; flex-direction: column; gap: 24px;">
+    {% for prob in problems %}
+    <div class="card" style="border-left: {% if prob.status == 'Submitted' %}4px solid var(--purple-600){% elif prob.status == 'Completed' %}4px solid var(--emerald-600){% else %}4px solid var(--slate-300){% endif %};">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
+            <div>
+                <span class="problem-topic">{{ prob.topic }}</span>
+                <h3 style="font-family: var(--font-heading); font-size: 1.35rem; font-weight: 700; color: var(--navy-900); margin: 4px 0;">
+                    {{ prob.title }}
+                </h3>
+                <div style="font-size: 0.88rem; color: var(--slate-600);">
+                    <strong>Client Company:</strong> {{ prob.company_name }}
+                    • <strong>Student Team:</strong> <span style="color: var(--teal-600); font-weight: 700;">{{ prob.assigned_student_name or 'Unassigned' }}</span>
+                </div>
+            </div>
+
+            <div>
+                {% if prob.status == 'Submitted' %}
+                    <span class="badge badge-submitted" style="font-size: 0.85rem; padding: 6px 12px;">📥 Solution Submitted (Action Required)</span>
+                {% elif prob.status == 'Reviewed' %}
+                    <span class="badge badge-reviewed" style="font-size: 0.85rem; padding: 6px 12px;">✅ Reviewed (Awaiting Company)</span>
+                {% elif prob.status == 'Completed' %}
+                    <span class="badge badge-completed" style="font-size: 0.85rem; padding: 6px 12px;">🏆 Completed & Verified</span>
+                {% elif prob.status == 'In Progress' %}
+                    <span class="badge badge-in-progress" style="font-size: 0.85rem; padding: 6px 12px;">⚡ Under Student Development</span>
+                {% else %}
+                    <span class="badge badge-approved" style="font-size: 0.85rem; padding: 6px 12px;">{{ prob.status }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <p style="color: var(--slate-700); font-size: 0.92rem; margin-bottom: 16px;">
+            {{ prob.description }}
+        </p>
+
+        <!-- Student Submission Section (If submitted) -->
+        {% if prob.submission_id %}
+            <div style="background: var(--slate-50); border: 1px solid var(--slate-200); padding: 18px; border-radius: var(--radius-md); margin-bottom: 18px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <div style="font-weight: 700; color: var(--navy-900); font-size: 0.95rem;">
+                        📁 Student Submission: {{ prob.submission_title }}
+                    </div>
+                    <span style="font-size: 0.78rem; color: var(--slate-500);">Submitted: {{ prob.submitted_at }}</span>
+                </div>
+
+                <p style="font-size: 0.9rem; color: var(--slate-700); line-height: 1.5; margin-bottom: 12px;">
+                    {{ prob.solution_summary }}
+                </p>
+
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; font-size: 0.82rem; margin-bottom: 14px;">
+                    {% if prob.demo_url %}
+                        <a href="{{ prob.demo_url }}" target="_blank" class="btn btn-sm btn-secondary">🌐 Open Student Demo</a>
+                    {% endif %}
+                    {% if prob.github_repo %}
+                        <a href="{{ prob.github_repo }}" target="_blank" class="btn btn-sm btn-secondary">🐙 Inspect GitHub Code</a>
+                    {% endif %}
+                    {% if prob.files_attached %}
+                        <span style="background: #ffffff; border: 1px solid var(--slate-200); padding: 4px 10px; border-radius: var(--radius-sm); color: var(--slate-600);">
+                            📎 Files: {{ prob.files_attached }}
+                        </span>
+                    {% endif %}
+                </div>
+
+                <!-- Faculty Review Form -->
+                <form action="{{ url_for('faculty_review', problem_id=prob.id) }}" method="POST" style="background: #ffffff; padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--slate-200); margin-top: 10px;">
+                    <div style="font-weight: 700; font-size: 0.9rem; color: var(--navy-900); margin-bottom: 10px;">
+                        Evaluate Solution & Grant Academic Review
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Mentor Evaluation Feedback *</label>
+                        <textarea name="faculty_feedback" class="form-control" rows="2" placeholder="Provide qualitative review on code structure, practical applicability, and areas to improve..." required>{{ prob.faculty_feedback or '' }}</textarea>
+                    </div>
+
+                    <div class="form-row" style="align-items: flex-end;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label class="form-label">Evaluation Status</label>
+                            <select name="faculty_status" class="form-control">
+                                <option value="Reviewed" {% if prob.faculty_status == 'Reviewed' %}selected{% endif %}>
+                                    Reviewed (Approve for Company Evaluation)
+                                </option>
+                                <option value="Changes Needed" {% if prob.faculty_status == 'Changes Needed' %}selected{% endif %}>
+                                    Changes Needed (Request Revision from Student)
+                                </option>
+                            </select>
+                        </div>
+                        <div>
+                            <button type="submit" class="btn btn-primary" style="height: 42px;">
+                                ✍️ Save Faculty Review
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        {% else %}
+            <div style="background: var(--slate-50); padding: 12px 16px; border-radius: var(--radius-md); font-size: 0.85rem; color: var(--slate-600); margin-bottom: 16px;">
+                ⏳ Awaiting student prototype submission. The student has been assigned and is currently building the deliverable.
+            </div>
+        {% endif %}
+
+        <div style="display: flex; gap: 10px;">
+            <a href="{{ url_for('problem_detail', problem_id=prob.id) }}" class="btn btn-secondary btn-sm">
+                View Full Problem Dossier →
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card" style="text-align: center; padding: 40px;">
+    <p style="color: var(--slate-600);">No projects assigned to you at the moment.</p>
+</div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,321 @@
+{% extends "base.html" %}
+
+{% block title %}{{ problem.title }} — SkillLoop Bharat{% endblock %}
+
+{% block content %}
+
+<!-- Breadcrumb -->
+<div style="margin-bottom: 16px; font-size: 0.85rem; color: var(--slate-600);">
+    <a href="{{ url_for('student_dashboard') }}" style="color: var(--teal-600); text-decoration: none;">← Back to Problems</a>
+    <span style="margin: 0 8px;">/</span>
+    <span>{{ problem.title }}</span>
+</div>
+
+<div class="detail-layout">
+    <!-- Main Column: Problem Breakdown & Actions -->
+    <div>
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; gap: 12px; flex-wrap: wrap;">
+                <div>
+                    <span class="problem-topic">{{ problem.topic }}</span>
+                    <h1 style="font-family: var(--font-heading); font-size: 1.8rem; font-weight: 800; color: var(--navy-900); margin: 6px 0;">
+                        {{ problem.title }}
+                    </h1>
+                    <div style="display: flex; align-items: center; gap: 8px; color: var(--slate-600); font-size: 0.92rem; font-weight: 600;">
+                        <span>🏢 Shared by: {{ problem.company_name }}</span>
+                        {% if problem.company_contact %}
+                            <span style="color: var(--slate-400);">•</span>
+                            <span style="font-size: 0.85rem; color: var(--slate-500);">Contact: {{ problem.company_contact }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Status Badge -->
+                <div>
+                    {% if problem.status == 'Approved' %}
+                        <span class="badge badge-approved" style="font-size: 0.85rem; padding: 6px 14px;">✅ Approved & Open</span>
+                    {% elif problem.status == 'In Progress' %}
+                        <span class="badge badge-in-progress" style="font-size: 0.85rem; padding: 6px 14px;">⚡ In Progress</span>
+                    {% elif problem.status == 'Submitted' %}
+                        <span class="badge badge-submitted" style="font-size: 0.85rem; padding: 6px 14px;">📤 Submitted (Under Faculty Review)</span>
+                    {% elif problem.status == 'Reviewed' %}
+                        <span class="badge badge-reviewed" style="font-size: 0.85rem; padding: 6px 14px;">🎓 Faculty Reviewed (Awaiting Company)</span>
+                    {% elif problem.status == 'Completed' %}
+                        <span class="badge badge-completed" style="font-size: 0.85rem; padding: 6px 14px;">🏆 Completed & Verified</span>
+                    {% elif problem.status == 'Pending Approval' %}
+                        <span class="badge badge-pending" style="font-size: 0.85rem; padding: 6px 14px;">⏳ Waiting for College Approval</span>
+                    {% else %}
+                        <span class="badge badge-needs-changes" style="font-size: 0.85rem; padding: 6px 14px;">{{ problem.status }}</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <hr style="border: none; border-top: 1px solid var(--slate-200); margin: 20px 0;">
+
+            <!-- Short Explanation -->
+            <div style="margin-bottom: 24px;">
+                <h3 style="font-family: var(--font-heading); font-size: 1.1rem; color: var(--navy-900); margin-bottom: 8px;">
+                    📌 Problem Context & Pain Point
+                </h3>
+                <p style="color: var(--slate-700); line-height: 1.6; font-size: 0.95rem;">
+                    {{ problem.description }}
+                </p>
+            </div>
+
+            <!-- Student Task -->
+            <div style="margin-bottom: 24px;">
+                <h3 style="font-family: var(--font-heading); font-size: 1.1rem; color: var(--navy-900); margin-bottom: 8px;">
+                    🎯 Student Team's Task
+                </h3>
+                <p style="color: var(--slate-700); line-height: 1.6; font-size: 0.95rem;">
+                    {{ problem.student_task }}
+                </p>
+            </div>
+
+            <!-- Expected Result -->
+            <div style="background: var(--teal-50); border: 1px solid var(--teal-100); border-radius: var(--radius-md); padding: 16px; margin-bottom: 24px;">
+                <div style="font-weight: 700; color: var(--teal-600); font-size: 0.88rem; text-transform: uppercase; margin-bottom: 4px;">
+                    📦 Expected Deliverable / Outcome
+                </div>
+                <p style="color: #0f766e; font-size: 0.95rem; font-weight: 500;">
+                    {{ problem.expected_result }}
+                </p>
+            </div>
+
+            <!-- Skills & Academic Mentorship -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 28px;">
+                <div style="background: var(--slate-50); padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--slate-200);">
+                    <div style="font-size: 0.78rem; font-weight: 700; color: var(--slate-600); text-transform: uppercase;">
+                        🛠️ Suggested Skills
+                    </div>
+                    <div style="font-weight: 600; color: var(--navy-900); margin-top: 4px; font-size: 0.9rem;">
+                        {{ problem.required_skills }}
+                    </div>
+                </div>
+
+                <div style="background: var(--slate-50); padding: 14px; border-radius: var(--radius-md); border: 1px solid var(--slate-200);">
+                    <div style="font-size: 0.78rem; font-weight: 700; color: var(--slate-600); text-transform: uppercase;">
+                        👩‍🏫 Assigned Faculty Mentor
+                    </div>
+                    <div style="font-weight: 600; color: var(--navy-900); margin-top: 4px; font-size: 0.9rem;">
+                        {{ problem.faculty_mentor_name or 'To be designated by College Coordinator' }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Area: Join or Submit -->
+            {% if problem.status == 'Approved' and not problem.assigned_student_id %}
+                <div style="background: #ffffff; border: 2px dashed var(--teal-500); border-radius: var(--radius-md); padding: 24px; text-align: center;">
+                    <h3 style="font-family: var(--font-heading); color: var(--navy-900); margin-bottom: 6px;">
+                        Ready to tackle this real-world challenge?
+                    </h3>
+                    <p style="color: var(--slate-600); font-size: 0.9rem; margin-bottom: 16px;">
+                        Join as <strong>{{ current_user.name }}</strong> (Student). You will receive academic guidance from {{ problem.faculty_mentor_name }}.
+                    </p>
+                    <form action="{{ url_for('join_problem', problem_id=problem.id) }}" method="POST">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            🚀 Join This Problem Now
+                        </button>
+                    </form>
+                </div>
+
+            {% elif problem.status == 'In Progress' and problem.assigned_student_id == current_user.id %}
+                <!-- Submit Solution Form -->
+                <div id="submit-section" style="background: #ffffff; border: 2px solid var(--teal-600); border-radius: var(--radius-md); padding: 24px;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 12px;">
+                        <span style="font-size: 1.4rem;">📤</span>
+                        <h3 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.25rem;">
+                            Submit Your Solution for Faculty Review
+                        </h3>
+                    </div>
+                    <p style="color: var(--slate-600); font-size: 0.88rem; margin-bottom: 20px;">
+                        Submit your working demonstration link, summary, and artifacts. Your faculty mentor ({{ problem.faculty_mentor_name }}) will review this before it is shared with {{ problem.company_name }}.
+                    </p>
+
+                    <form action="{{ url_for('submit_solution', problem_id=problem.id) }}" method="POST">
+                        <div class="form-group">
+                            <label class="form-label">Solution / Project Title *</label>
+                            <input type="text" name="submission_title" class="form-control" placeholder="e.g. Bilingual QR Menu System for Annapurna Bhavan" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Summary of Approach & Deliverable *</label>
+                            <textarea name="solution_summary" class="form-control" rows="4" placeholder="Explain how you solved the problem, key features built, and how it addresses the company's requirement..." required></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">Live Prototype / Demo URL (Optional)</label>
+                                <input type="url" name="demo_url" class="form-control" placeholder="https://my-demo-link.vercel.app">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">GitHub Repository / Source Code (Optional)</label>
+                                <input type="url" name="github_repo" class="form-control" placeholder="https://github.com/aarav-sharma/demo-project">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Attached Artifacts / Documentation</label>
+                            <input type="text" name="files_attached" class="form-control" value="Solution_Architecture.pdf, UI_Mockups_Walkthrough.png">
+                            <span class="form-help">Simulated attached project documentation for prototype demonstration.</span>
+                        </div>
+
+                        <button type="submit" class="btn btn-accent btn-lg" style="width: 100%;">
+                            Submit Solution to Faculty Mentor →
+                        </button>
+                    </form>
+                </div>
+
+            {% elif submission %}
+                <!-- Existing Submission Summary -->
+                <div class="card" style="background: var(--slate-50); border: 1px solid var(--slate-200); margin-top: 16px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <h3 style="font-family: var(--font-heading); color: var(--navy-900); font-size: 1.15rem;">
+                            📄 Submitted Solution: {{ submission.submission_title }}
+                        </h3>
+                        <span class="badge badge-submitted">Submitted on {{ submission.submitted_at }}</span>
+                    </div>
+
+                    <p style="color: var(--slate-700); font-size: 0.92rem; margin-bottom: 14px; line-height: 1.5;">
+                        {{ submission.solution_summary }}
+                    </p>
+
+                    <div style="display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.85rem; margin-bottom: 16px;">
+                        {% if submission.demo_url %}
+                            <a href="{{ submission.demo_url }}" target="_blank" class="btn btn-sm btn-secondary">🌐 Live Demo Link</a>
+                        {% endif %}
+                        {% if submission.github_repo %}
+                            <a href="{{ submission.github_repo }}" target="_blank" class="btn btn-sm btn-secondary">🐙 GitHub Repo</a>
+                        {% endif %}
+                        {% if submission.files_attached %}
+                            <span style="background: #ffffff; border: 1px solid var(--slate-200); padding: 4px 10px; border-radius: var(--radius-sm); color: var(--slate-600);">
+                                📎 Files: {{ submission.files_attached }}
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Faculty Feedback Box -->
+                    {% if submission.faculty_feedback %}
+                    <div style="background: #ffffff; border-left: 4px solid var(--teal-600); padding: 14px; border-radius: var(--radius-sm); margin-bottom: 12px;">
+                        <div style="font-weight: 700; color: var(--teal-600); font-size: 0.82rem; text-transform: uppercase;">
+                            👩‍🏫 Faculty Mentor Review ({{ problem.faculty_mentor_name }})
+                        </div>
+                        <p style="color: var(--navy-900); font-size: 0.9rem; margin-top: 4px; font-style: italic;">
+                            "{{ submission.faculty_feedback }}"
+                        </p>
+                    </div>
+                    {% endif %}
+
+                    <!-- Company Feedback Box -->
+                    {% if submission.company_feedback %}
+                    <div style="background: var(--emerald-50); border-left: 4px solid var(--emerald-600); padding: 14px; border-radius: var(--radius-sm);">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="font-weight: 700; color: var(--emerald-600); font-size: 0.82rem; text-transform: uppercase;">
+                                🏢 Company Endorsement & Feedback ({{ problem.company_name }})
+                            </div>
+                            <div style="color: #d97706; font-weight: bold; font-size: 0.9rem;">
+                                {% for i in range(submission.company_rating or 5) %}⭐{% endfor %}
+                            </div>
+                        </div>
+                        <p style="color: #065f46; font-size: 0.92rem; margin-top: 6px; font-weight: 500;">
+                            {{ submission.company_feedback }}
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Sidebar Column: Metadata & Lifecycle Status Timeline -->
+    <div>
+        <div class="card" style="padding: 20px;">
+            <h3 class="card-title" style="font-size: 1.1rem; margin-bottom: 16px;">Task Information</h3>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px; font-size: 0.85rem;">
+                <div>
+                    <div style="color: var(--slate-500); font-weight: 500;">Status</div>
+                    <div style="font-weight: 700; color: var(--navy-900); margin-top: 2px;">{{ problem.status }}</div>
+                </div>
+                <div>
+                    <div style="color: var(--slate-500); font-weight: 500;">Host College</div>
+                    <div style="font-weight: 700; color: var(--navy-900); margin-top: 2px;">Bharat Institute of Technology, Pune</div>
+                </div>
+                <div>
+                    <div style="color: var(--slate-500); font-weight: 500;">Assigned Student Team</div>
+                    <div style="font-weight: 700; color: var(--teal-600); margin-top: 2px;">
+                        {{ problem.assigned_student_name or 'Available to claim' }}
+                    </div>
+                </div>
+                <div>
+                    <div style="color: var(--slate-500); font-weight: 500;">Faculty Mentor</div>
+                    <div style="font-weight: 700; color: var(--navy-900); margin-top: 2px;">
+                        {{ problem.faculty_mentor_name or 'Under College Assignment' }}
+                    </div>
+                </div>
+                <div>
+                    <div style="color: var(--slate-500); font-weight: 500;">Target Deadline</div>
+                    <div style="font-weight: 700; color: var(--navy-900); margin-top: 2px;">{{ problem.deadline }}</div>
+                </div>
+            </div>
+
+            <hr style="border: none; border-top: 1px solid var(--slate-200); margin: 20px 0;">
+
+            <!-- Timeline -->
+            <h4 style="font-family: var(--font-heading); font-size: 0.95rem; color: var(--navy-900); margin-bottom: 14px;">
+                Task Lifecycle Progress
+            </h4>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-dot done"></div>
+                    <div class="timeline-title">1. Company Posted</div>
+                    <div class="timeline-sub">Problem received from {{ problem.company_name }}</div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-dot {% if problem.status != 'Pending Approval' %}done{% else %}active{% endif %}"></div>
+                    <div class="timeline-title">2. College Approval</div>
+                    <div class="timeline-sub">
+                        {% if problem.status != 'Pending Approval' %}
+                            Approved by Coordinator
+                        {% else %}
+                            Pending Coordinator Review
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-dot {% if problem.assigned_student_id %}done{% elif problem.status == 'Approved' %}active{% endif %}"></div>
+                    <div class="timeline-title">3. Student Assigned</div>
+                    <div class="timeline-sub">{{ problem.assigned_student_name or 'Waiting for student to join' }}</div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-dot {% if submission %}done{% elif problem.status == 'In Progress' %}active{% endif %}"></div>
+                    <div class="timeline-title">4. Solution Submitted</div>
+                    <div class="timeline-sub">
+                        {% if submission %}Submitted for review{% else %}Under development{% endif %}
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-dot {% if submission and submission.faculty_status == 'Reviewed' %}done{% elif problem.status == 'Submitted' %}active{% endif %}"></div>
+                    <div class="timeline-title">5. Faculty Review</div>
+                    <div class="timeline-sub">
+                        {% if submission and submission.faculty_status == 'Reviewed' %}Academic credit verified{% else %}Pending review{% endif %}
+                    </div>
+                </div>
+
+                <div class="timeline-item">
+                    <div class="timeline-dot {% if problem.status == 'Completed' %}done{% elif problem.status == 'Reviewed' %}active{% endif %}"></div>
+                    <div class="timeline-title">6. Company Endorsement</div>
+                    <div class="timeline-sub">
+                        {% if problem.status == 'Completed' %}Feedback added to Portfolio!{% else %}Awaiting company note{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}

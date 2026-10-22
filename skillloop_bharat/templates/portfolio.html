@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block title %}Verified Student Portfolio — Aarav Sharma — SkillLoop Bharat{% endblock %}
+
+{% block content %}
+
+<!-- Student Portfolio Header Profile -->
+<div class="portfolio-header">
+    <div class="portfolio-user">
+        <div class="portfolio-avatar">👨‍🎓</div>
+        <div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <h1 class="portfolio-name">{{ current_user.name }}</h1>
+                <span class="badge badge-approved">Academic Profile</span>
+            </div>
+            <div class="portfolio-meta">
+                {{ current_user.title }}
+            </div>
+            <div class="portfolio-college">
+                🏛️ Bharat Institute of Technology, Pune (Affiliated to Savitribai Phule Pune University)
+            </div>
+            <div style="font-size: 0.85rem; color: var(--slate-600); margin-top: 6px;">
+                <strong>Demonstrated Competencies:</strong> Python, Full-stack Web Design, Relational DBs, REST APIs, UI/UX Prototyping
+            </div>
+        </div>
+    </div>
+
+    <div class="verified-box">
+        <div class="verified-tag">✔ College & Industry Verified Work</div>
+        <div class="verified-sub">Supervised by Dept. of Computer Engineering</div>
+        <div style="font-size: 0.72rem; color: #475569; margin-top: 4px;">Verified on {{ now_date }}</div>
+    </div>
+</div>
+
+<div class="section-header">
+    <div>
+        <h2 class="section-title">Verified Real-World Projects & Industry Endorsements</h2>
+        <p class="section-desc">Projects completed for real enterprises under direct faculty mentorship. Each project records the business problem, student's contribution, faculty appraisal, and client company feedback.</p>
+    </div>
+</div>
+
+{% if projects %}
+<div style="display: flex; flex-direction: column; gap: 28px;">
+    {% for proj in projects %}
+    <div class="card" style="border-top: 4px solid var(--teal-600); box-shadow: var(--shadow-md);">
+        <!-- Project Title & Header -->
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 12px; margin-bottom: 14px;">
+            <div>
+                <span class="problem-topic">{{ proj.topic }}</span>
+                <h3 style="font-family: var(--font-heading); font-size: 1.45rem; font-weight: 800; color: var(--navy-900); margin: 4px 0;">
+                    {{ proj.title }}
+                </h3>
+                <div style="display: flex; align-items: center; gap: 8px; font-size: 0.92rem; color: var(--slate-600); font-weight: 600;">
+                    <span>🏢 Partner Business: <strong>{{ proj.company_name }}</strong></span>
+                    <span>•</span>
+                    <span>👩‍🏫 Mentor: <strong>{{ proj.faculty_mentor_name }}</strong></span>
+                </div>
+            </div>
+
+            <div style="text-align: right;">
+                <span class="badge badge-completed" style="font-size: 0.85rem; padding: 6px 14px;">
+                    ⭐ Completed Project
+                </span>
+                <div style="font-size: 0.75rem; color: var(--slate-500); margin-top: 4px;">
+                    Verified by College Innovation Cell
+                </div>
+            </div>
+        </div>
+
+        <!-- Problem Description -->
+        <div style="background: var(--slate-50); padding: 14px 18px; border-radius: var(--radius-md); border: 1px solid var(--slate-200); margin-bottom: 18px;">
+            <div style="font-size: 0.8rem; font-weight: 700; color: var(--slate-600); text-transform: uppercase;">
+                1. The Real-World Challenge
+            </div>
+            <p style="color: var(--slate-800); font-size: 0.92rem; margin-top: 4px; line-height: 1.5;">
+                {{ proj.description }}
+            </p>
+        </div>
+
+        <!-- Student Contribution & Solution Details -->
+        <div style="margin-bottom: 18px;">
+            <div style="font-size: 0.8rem; font-weight: 700; color: var(--teal-600); text-transform: uppercase; margin-bottom: 6px;">
+                2. Student's Engineered Solution & Contribution
+            </div>
+            <h4 style="font-size: 1.1rem; color: var(--navy-900); font-weight: 700; margin-bottom: 6px;">
+                {{ proj.submission_title }}
+            </h4>
+            <p style="color: var(--slate-700); font-size: 0.92rem; line-height: 1.6;">
+                {{ proj.solution_summary }}
+            </p>
+
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;">
+                {% if proj.demo_url %}
+                    <a href="{{ proj.demo_url }}" target="_blank" class="btn btn-sm btn-secondary">
+                        🌐 Working Prototype Link
+                    </a>
+                {% endif %}
+                {% if proj.github_repo %}
+                    <a href="{{ proj.github_repo }}" target="_blank" class="btn btn-sm btn-secondary">
+                        🐙 GitHub Source Repository
+                    </a>
+                {% endif %}
+                {% if proj.files_attached %}
+                    <span style="background: var(--slate-100); border: 1px solid var(--slate-200); padding: 5px 12px; border-radius: var(--radius-sm); font-size: 0.8rem; color: var(--slate-600);">
+                        📎 Attached Assets: {{ proj.files_attached }}
+                    </span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Dual Evaluation: Faculty Review + Company Testimonial -->
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
+            <!-- Faculty Appraisal -->
+            <div style="background: var(--teal-50); border: 1px solid var(--teal-100); border-radius: var(--radius-md); padding: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <div style="font-weight: 700; font-size: 0.82rem; color: var(--teal-600); text-transform: uppercase;">
+                        👩‍🏫 Faculty Mentor Review
+                    </div>
+                    <span class="badge badge-approved" style="font-size: 0.7rem;">Verified</span>
+                </div>
+                <div style="font-size: 0.82rem; color: #0f766e; font-weight: 600; margin-bottom: 4px;">
+                    Reviewed by {{ proj.faculty_mentor_name }}
+                </div>
+                <p style="font-size: 0.88rem; color: #134e4a; line-height: 1.5; font-style: italic;">
+                    "{{ proj.faculty_feedback or 'Applied technical skills effectively to solve the client problem.' }}"
+                </p>
+            </div>
+
+            <!-- Company Feedback -->
+            <div style="background: var(--emerald-50); border: 1px solid #a7f3d0; border-radius: var(--radius-md); padding: 16px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <div style="font-weight: 700; font-size: 0.82rem; color: var(--emerald-600); text-transform: uppercase;">
+                        🏢 Company Endorsement
+                    </div>
+                    <div style="color: #d97706; font-size: 0.85rem; font-weight: bold;">
+                        {% for i in range(proj.company_rating or 5) %}⭐{% endfor %}
+                    </div>
+                </div>
+                <div style="font-size: 0.82rem; color: #065f46; font-weight: 600; margin-bottom: 4px;">
+                    Feedback from {{ proj.company_name }}
+                </div>
+                <p style="font-size: 0.88rem; color: #064e3b; line-height: 1.5; font-weight: 500;">
+                    {{ proj.company_feedback or '“Very pleased with the prototype. Ready for internal trial.”' }}
+                </p>
+            </div>
+        </div>
+
+        <div style="margin-top: 18px; display: flex; justify-content: flex-end;">
+            <a href="{{ url_for('problem_detail', problem_id=proj.id) }}" class="btn btn-secondary btn-sm">
+                View Full Project Audit Dossier →
+            </a>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% else %}
+<div class="card" style="text-align: center; padding: 48px;">
+    <div style="font-size: 2.5rem; margin-bottom: 12px;">📁</div>
+    <h3 style="font-family: var(--font-heading); color: var(--navy-900); margin-bottom: 8px;">No Completed Projects Yet</h3>
+    <p style="color: var(--slate-600); font-size: 0.95rem; max-width: 500px; margin: 0 auto 18px auto;">
+        Once student teams submit solutions and receive reviews from both faculty mentors and client companies, verified projects will automatically appear here.
+    </p>
+    <a href="{{ url_for('student_dashboard') }}" class="btn btn-primary">
+        Browse In-Progress Projects in Student Hub
+    </a>
+</div>
+{% endif %}
+
+<!-- Verification Note -->
+<div style="margin-top: 32px; background: #ffffff; border: 1px dashed var(--slate-300); border-radius: var(--radius-md); padding: 16px; text-align: center; font-size: 0.82rem; color: var(--slate-500);">
+    🛡️ <strong>Prototype Disclosure:</strong> As outlined in the SkillLoop Bharat specification, official blockchain or tamper-proof credential certificates are omitted in this first prototype to focus on core workflow validation with verified sample data.
+</div>
+
+{% endblock %}

@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+
+{% block title %}College Coordinator Dashboard — SkillLoop Bharat{% endblock %}
+
+{% block content %}
+
+<!-- Coordinator Banner -->
+<div class="card" style="border-left: 4px solid var(--navy-800); margin-bottom: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div>
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
+                <h1 style="font-family: var(--font-heading); font-size: 1.6rem; color: var(--navy-900);">
+                    {{ current_user.name }} 🏛️
+                </h1>
+                <span class="badge badge-pending">College Administrator</span>
+            </div>
+            <p style="color: var(--slate-600); font-size: 0.92rem;">
+                {{ current_user.title }} • <strong>{{ current_user.institution }}</strong>
+            </p>
+            <p style="font-size: 0.82rem; color: var(--slate-500); margin-top: 4px;">
+                Industry Relations & Applied Curriculum Vetting Cell
+            </p>
+        </div>
+        <div style="background: var(--slate-100); padding: 8px 16px; border-radius: var(--radius-md); text-align: right;">
+            <div style="font-size: 0.75rem; color: var(--slate-500); text-transform: uppercase; font-weight: 700;">Host Institute</div>
+            <div style="font-weight: 800; color: var(--navy-900);">Bharat Institute of Technology</div>
+        </div>
+    </div>
+</div>
+
+<!-- Coordinator Metric Cards (As specified in SPEC.md Page E) -->
+<div class="stats-grid">
+    <div class="stat-card" style="border-top: 3px solid var(--amber-600);">
+        <div class="stat-icon" style="background: var(--amber-50); color: var(--amber-600);">⏳</div>
+        <div>
+            <div class="stat-val">{{ pending_count }}</div>
+            <div class="stat-lbl">Waiting for Approval</div>
+        </div>
+    </div>
+
+    <div class="stat-card" style="border-top: 3px solid var(--teal-600);">
+        <div class="stat-icon" style="background: var(--teal-50); color: var(--teal-600);">✅</div>
+        <div>
+            <div class="stat-val">{{ active_count }}</div>
+            <div class="stat-lbl">Active & Approved Tasks</div>
+        </div>
+    </div>
+
+    <div class="stat-card" style="border-top: 3px solid var(--emerald-600);">
+        <div class="stat-icon" style="background: var(--emerald-50); color: var(--emerald-600);">🏆</div>
+        <div>
+            <div class="stat-val">{{ completed_count }}</div>
+            <div class="stat-lbl">Completed Student Projects</div>
+        </div>
+    </div>
+
+    <div class="stat-card" style="border-top: 3px solid var(--navy-800);">
+        <div class="stat-icon" style="background: var(--slate-100); color: var(--navy-800);">📊</div>
+        <div>
+            <div class="stat-val">{{ total_count }}</div>
+            <div class="stat-lbl">Total Submissions Received</div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Tabs -->
+<div class="tabs-container">
+    <button class="tab-btn active" data-tab="tab-pending-approvals">
+        ⚠️ Approval Queue ({{ pending_problems|length }})
+    </button>
+    <button class="tab-btn" data-tab="tab-all-problems">
+        📚 All College Projects ({{ all_problems|length }})
+    </button>
+</div>
+
+<!-- Tab 1: Pending Approvals Queue -->
+<div id="tab-pending-approvals" class="tab-content active">
+    <div class="section-header">
+        <div>
+            <h2 class="section-title">Company Problems Waiting for College Approval</h2>
+            <p class="section-desc">Evaluate the business problem's academic suitability, assign a faculty mentor, and either approve, request changes, or reject.</p>
+        </div>
+    </div>
+
+    {% if pending_problems %}
+        <div style="display: flex; flex-direction: column; gap: 20px;">
+            {% for prob in pending_problems %}
+            <div class="card" style="border: 2px solid #fde68a; background: #fffcf0;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+                    <div>
+                        <span class="problem-topic">{{ prob.topic }}</span>
+                        <h3 style="font-family: var(--font-heading); font-size: 1.3rem; font-weight: 700; color: var(--navy-900); margin: 4px 0;">
+                            {{ prob.title }}
+                        </h3>
+                        <div style="font-size: 0.88rem; color: var(--slate-600);">
+                            <strong>Company:</strong> {{ prob.company_name }}
+                            {% if prob.company_contact %} • <em>{{ prob.company_contact }}</em>{% endif %}
+                        </div>
+                    </div>
+                    <span class="badge badge-pending">Needs College Decision</span>
+                </div>
+
+                <div style="background: #ffffff; padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--slate-200); margin-bottom: 16px;">
+                    <div style="margin-bottom: 10px;">
+                        <strong style="font-size: 0.85rem; color: var(--navy-900);">Problem Description:</strong>
+                        <p style="font-size: 0.9rem; color: var(--slate-700); margin-top: 2px;">{{ prob.description }}</p>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 10px; font-size: 0.85rem;">
+                        <div>
+                            <strong style="color: var(--navy-900);">Student Task:</strong>
+                            <p style="color: var(--slate-700); margin-top: 2px;">{{ prob.student_task }}</p>
+                        </div>
+                        <div>
+                            <strong style="color: var(--navy-900);">Expected Result:</strong>
+                            <p style="color: var(--slate-700); margin-top: 2px;">{{ prob.expected_result }}</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 10px; font-size: 0.85rem;">
+                        <strong style="color: var(--navy-900);">Required Skills:</strong>
+                        <span style="color: var(--slate-700);">{{ prob.required_skills }}</span>
+                    </div>
+                </div>
+
+                <!-- Moderation Form with Mentor Assignment -->
+                <form action="{{ url_for('moderate_problem', problem_id=prob.id) }}" method="POST" style="background: #ffffff; padding: 18px; border-radius: var(--radius-md); border: 1px solid var(--slate-200);">
+                    <h4 style="font-family: var(--font-heading); font-size: 0.95rem; color: var(--navy-900); margin-bottom: 12px;">
+                        Coordinator Action & Faculty Mentor Assignment
+                    </h4>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">Assign Faculty Mentor *</label>
+                            <select name="faculty_mentor_id" class="form-control" required>
+                                {% for faculty in faculty_list %}
+                                    <option value="{{ faculty.id }}">{{ faculty.name }} (Dept: {{ faculty.dept }} - {{ faculty.specialization }})</option>
+                                {% endfor %}
+                            </select>
+                            <span class="form-help">The selected mentor will guide the student and evaluate their work.</span>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Coordinator Feedback / Curriculum Notes</label>
+                            <input type="text" name="coordinator_notes" class="form-control" placeholder="e.g. Approved. Fits 3rd Year Mini-Project syllabus credit.">
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap;">
+                        <button type="submit" name="action" value="reject" class="btn btn-secondary" onclick="return confirm('Reject this problem?');" style="color: var(--rose-600);">
+                            ❌ Reject
+                        </button>
+                        <button type="submit" name="action" value="request_changes" class="btn btn-secondary" style="color: var(--amber-600);">
+                            ⚠️ Request Changes
+                        </button>
+                        <button type="submit" name="action" value="approve" class="btn btn-primary">
+                            ✅ Approve & Assign Mentor
+                        </button>
+                    </div>
+                </form>
+            </div>
+            {% endfor %}
+        </div>
+    {% else %}
+    <div class="card" style="text-align: center; padding: 48px;">
+        <div style="font-size: 2.5rem; margin-bottom: 10px;">🎉</div>
+        <h3 style="font-family: var(--font-heading); color: var(--navy-900); margin-bottom: 6px;">All Problems Reviewed!</h3>
+        <p style="color: var(--slate-600); font-size: 0.92rem;">
+            There are currently no pending company problems waiting for approval.
+        </p>
+        <div style="margin-top: 16px;">
+            <a href="{{ url_for('switch_role', role='company') }}" class="btn btn-accent btn-sm">
+                🏢 Switch to Company Role & Post a New Problem
+            </a>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Tab 2: All College Projects -->
+<div id="tab-all-problems" class="tab-content">
+    <div class="section-header">
+        <div>
+            <h2 class="section-title">College Problem Master Registry</h2>
+            <p class="section-desc">All approved, in-progress, and completed collaborative projects across departments.</p>
+        </div>
+    </div>
+
+    <div class="problems-grid">
+        {% for prob in all_problems %}
+        <div class="problem-card">
+            <div class="problem-card-top">
+                <span class="problem-topic">{{ prob.topic }}</span>
+                {% if prob.status == 'Approved' %}
+                    <span class="badge badge-approved">Approved</span>
+                {% elif prob.status == 'In Progress' %}
+                    <span class="badge badge-in-progress">In Progress</span>
+                {% elif prob.status == 'Completed' %}
+                    <span class="badge badge-completed">Completed ⭐</span>
+                {% elif prob.status == 'Needs Changes' %}
+                    <span class="badge badge-needs-changes">Changes Requested</span>
+                {% else %}
+                    <span class="badge badge-pending">{{ prob.status }}</span>
+                {% endif %}
+            </div>
+
+            <h3 class="problem-card-title">{{ prob.title }}</h3>
+            <div class="problem-company">
+                <span>🏢</span> {{ prob.company_name }}
+            </div>
+
+            <p class="problem-desc">{{ prob.description }}</p>
+
+            <div class="problem-meta">
+                <div class="meta-item">
+                    <span class="meta-label">Faculty Mentor:</span>
+                    <span class="meta-value">{{ prob.faculty_mentor_name or 'Unassigned' }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Assigned Student:</span>
+                    <span class="meta-value">{{ prob.assigned_student_name or 'Not yet claimed' }}</span>
+                </div>
+                {% if prob.coordinator_notes %}
+                <div class="meta-item" style="flex-direction: column;">
+                    <span class="meta-label">Coordinator Note:</span>
+                    <span style="font-size: 0.8rem; color: var(--slate-700); margin-top: 2px;">{{ prob.coordinator_notes }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="problem-card-actions">
+                <a href="{{ url_for('problem_detail', problem_id=prob.id) }}" class="btn btn-secondary" style="flex: 1;">
+                    View Overview & Status →
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}

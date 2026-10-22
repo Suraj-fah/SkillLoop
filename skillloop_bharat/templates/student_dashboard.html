@@ -1,0 +1,239 @@
+{% extends "base.html" %}
+
+{% block title %}Student Dashboard — SkillLoop Bharat{% endblock %}
+
+{% block content %}
+
+<!-- Student Header -->
+<div class="card" style="border-left: 4px solid var(--teal-600); margin-bottom: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div>
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
+                <h1 style="font-family: var(--font-heading); font-size: 1.6rem; color: var(--navy-900);">
+                    Welcome back, {{ current_user.name }}! 👨‍🎓
+                </h1>
+                <span class="badge badge-approved">Active Student</span>
+            </div>
+            <p style="color: var(--slate-600); font-size: 0.92rem;">
+                {{ current_user.title }} • {{ current_user.institution }}
+            </p>
+            <p style="font-size: 0.82rem; color: var(--slate-500); margin-top: 4px;">
+                <strong>Skills:</strong> {{ current_user.skills }}
+            </p>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <a href="{{ url_for('student_portfolio') }}" class="btn btn-accent">
+                🎓 View My Verified Portfolio
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Tabs: Available Problems, Joined Problems, Completed Projects -->
+<div class="tabs-container">
+    <button class="tab-btn active" data-tab="tab-available">
+        🔍 Available Approved Problems ({{ available_problems|length }})
+    </button>
+    <button class="tab-btn" data-tab="tab-joined">
+        ⚡ In Progress & Submitted ({{ joined_problems|length }})
+    </button>
+    <button class="tab-btn" data-tab="tab-completed">
+        🏆 Completed Projects ({{ completed_problems|length }})
+    </button>
+</div>
+
+<!-- Tab 1: Available Approved Problems -->
+<div id="tab-available" class="tab-content active">
+    <div class="section-header">
+        <div>
+            <h2 class="section-title">Open Problems Ready for Student Teams</h2>
+            <p class="section-desc">These problems have been reviewed and approved by college faculty coordinators. Pick one to gain real-world project experience.</p>
+        </div>
+    </div>
+
+    {% if available_problems %}
+    <div class="problems-grid">
+        {% for prob in available_problems %}
+        <div class="problem-card">
+            <div class="problem-card-top">
+                <span class="problem-topic">{{ prob.topic }}</span>
+                <span class="badge badge-approved">Approved & Available</span>
+            </div>
+
+            <h3 class="problem-card-title">{{ prob.title }}</h3>
+            <div class="problem-company">
+                <span>🏢</span> {{ prob.company_name }}
+            </div>
+
+            <p class="problem-desc">{{ prob.description }}</p>
+
+            <div class="problem-meta">
+                <div class="meta-item">
+                    <span class="meta-label">Assigned Faculty Mentor:</span>
+                    <span class="meta-value">{{ prob.faculty_mentor_name or 'Dr. Sunita Rao' }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Difficulty Level:</span>
+                    <span class="meta-value">{{ prob.difficulty }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Submission Deadline:</span>
+                    <span class="meta-value">{{ prob.deadline }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Expected Deliverable:</span>
+                    <span class="meta-value" style="text-align: right; max-width: 60%;">{{ prob.expected_result }}</span>
+                </div>
+            </div>
+
+            <div class="problem-card-actions">
+                <a href="{{ url_for('problem_detail', problem_id=prob.id) }}" class="btn btn-primary" style="flex: 1;">
+                    View & Join Task →
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card" style="text-align: center; padding: 40px;">
+        <p style="color: var(--slate-600); font-size: 1rem;">No unassigned approved problems right now. Check back soon or view your in-progress tasks!</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Tab 2: Joined Problems (In Progress / Submitted / Reviewed) -->
+<div id="tab-joined" class="tab-content">
+    <div class="section-header">
+        <div>
+            <h2 class="section-title">My Active Tasks & Submissions</h2>
+            <p class="section-desc">Track your work, mentor review feedback, and submit your prototype solutions.</p>
+        </div>
+    </div>
+
+    {% if joined_problems %}
+    <div class="problems-grid">
+        {% for prob in joined_problems %}
+        <div class="problem-card" style="border-top: 3px solid var(--teal-600);">
+            <div class="problem-card-top">
+                <span class="problem-topic">{{ prob.topic }}</span>
+                {% if prob.status == 'In Progress' %}
+                    <span class="badge badge-in-progress">In Progress (Active)</span>
+                {% elif prob.status == 'Submitted' %}
+                    <span class="badge badge-submitted">Submitted • Under Faculty Review</span>
+                {% elif prob.status == 'Reviewed' %}
+                    <span class="badge badge-reviewed">Reviewed • Awaiting Company</span>
+                {% endif %}
+            </div>
+
+            <h3 class="problem-card-title">{{ prob.title }}</h3>
+            <div class="problem-company">
+                <span>🏢</span> {{ prob.company_name }}
+            </div>
+
+            <p class="problem-desc">{{ prob.student_task }}</p>
+
+            <div class="problem-meta">
+                <div class="meta-item">
+                    <span class="meta-label">Faculty Mentor:</span>
+                    <span class="meta-value">{{ prob.faculty_mentor_name }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Current Stage:</span>
+                    <span class="meta-value" style="color: var(--teal-600); font-weight: bold;">{{ prob.status }}</span>
+                </div>
+                {% if prob.faculty_feedback %}
+                <div class="meta-item" style="flex-direction: column; gap: 4px;">
+                    <span class="meta-label">Faculty Feedback:</span>
+                    <span style="font-size: 0.8rem; background: var(--teal-50); padding: 6px; border-radius: var(--radius-sm); color: #0f766e;">
+                        "{{ prob.faculty_feedback }}"
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="problem-card-actions">
+                <a href="{{ url_for('problem_detail', problem_id=prob.id) }}" class="btn btn-primary" style="flex: 1;">
+                    {% if prob.status == 'In Progress' %}
+                        🚀 Submit Solution Now →
+                    {% else %}
+                        👀 View Submission & Status →
+                    {% endif %}
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card" style="text-align: center; padding: 40px;">
+        <p style="color: var(--slate-600); font-size: 1rem;">You haven't joined any active tasks yet.</p>
+        <button class="btn btn-primary" onclick="document.querySelector('[data-tab=tab-available]').click();" style="margin-top: 12px;">
+            Browse Available Tasks
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Tab 3: Completed Projects -->
+<div id="tab-completed" class="tab-content">
+    <div class="section-header">
+        <div>
+            <h2 class="section-title">Completed Projects (Portfolio Ready)</h2>
+            <p class="section-desc">Projects reviewed by faculty and endorsed with feedback from the company.</p>
+        </div>
+        <a href="{{ url_for('student_portfolio') }}" class="btn btn-accent btn-sm">Open Public Portfolio Page →</a>
+    </div>
+
+    {% if completed_problems %}
+    <div class="problems-grid">
+        {% for prob in completed_problems %}
+        <div class="problem-card" style="border-top: 3px solid var(--emerald-600);">
+            <div class="problem-card-top">
+                <span class="problem-topic">{{ prob.topic }}</span>
+                <span class="badge badge-completed">Verified Completed ⭐ 5/5</span>
+            </div>
+
+            <h3 class="problem-card-title">{{ prob.title }}</h3>
+            <div class="problem-company">
+                <span>🏢</span> {{ prob.company_name }}
+            </div>
+
+            <p class="problem-desc">{{ prob.description }}</p>
+
+            <div class="problem-meta">
+                <div class="meta-item">
+                    <span class="meta-label">Submission:</span>
+                    <span class="meta-value">{{ prob.submission_title }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Mentor:</span>
+                    <span class="meta-value">{{ prob.faculty_mentor_name }}</span>
+                </div>
+                {% if prob.company_feedback %}
+                <div class="meta-item" style="flex-direction: column; gap: 4px;">
+                    <span class="meta-label">Company Testimonial:</span>
+                    <span style="font-size: 0.8rem; background: var(--emerald-50); padding: 8px; border-radius: var(--radius-sm); color: #065f46; font-style: italic;">
+                        {{ prob.company_feedback }}
+                    </span>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="problem-card-actions">
+                <a href="{{ url_for('problem_detail', problem_id=prob.id) }}" class="btn btn-secondary" style="flex: 1;">
+                    Review Timeline →
+                </a>
+                <a href="{{ url_for('student_portfolio') }}" class="btn btn-accent" style="flex: 1;">
+                    View in Portfolio
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card" style="text-align: center; padding: 40px;">
+        <p style="color: var(--slate-600);">No completed projects yet. Complete your in-progress tasks to build your portfolio!</p>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

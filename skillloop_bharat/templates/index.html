@@ -1,0 +1,255 @@
+{% extends "base.html" %}
+
+{% block title %}SkillLoop Bharat — Learn from Real Problems. Build Real Skills.{% endblock %}
+
+{% block content %}
+
+<!-- Hero Banner -->
+<section class="hero-section">
+    <div class="hero-tag">
+        <span>🇮🇳</span> Built for Indian Colleges & Local Enterprises
+    </div>
+    <h1 class="hero-title">
+        SkillLoop Bharat: <br>
+        <span class="highlight">Learn from Real Problems. Build Real Skills.</span>
+    </h1>
+    <p class="hero-subtitle">
+        A college-managed website where nearby local companies share small, real problems. 
+        Colleges approve suitable tasks, student teams engineer practical solutions with faculty mentorship, and businesses provide direct feedback.
+    </p>
+    <div class="hero-cta-group">
+        <a href="#explore-problems" class="btn btn-accent btn-lg">🔍 Explore Sample Problems</a>
+        <a href="{{ url_for('switch_role', role='student') }}" class="btn btn-primary btn-lg">👨‍🎓 Try as Student</a>
+        <a href="{{ url_for('switch_role', role='company') }}" class="btn btn-outline-white btn-lg">🏢 Try as Company</a>
+    </div>
+</section>
+
+<!-- Four Clear Role Options (As specified in SPEC.md Page A) -->
+<section class="section-container" style="margin-bottom: 40px;">
+    <div class="section-header">
+        <div>
+            <h2 class="section-title">Select a Role to Experience the Platform</h2>
+            <p class="section-desc">Experience SkillLoop Bharat from any of the four key stakeholder perspectives.</p>
+        </div>
+        <div class="demo-badge-pill">Single Presenter Demo Mode Enabled</div>
+    </div>
+
+    <div class="roles-grid">
+        <!-- 1. Student -->
+        <div class="role-card">
+            <div>
+                <div class="role-card-header">
+                    <span class="role-card-icon">👨‍🎓</span>
+                    <div>
+                        <div class="role-card-title">Student</div>
+                        <span class="badge badge-in-progress">Aarav Sharma (3rd Year)</span>
+                    </div>
+                </div>
+                <p class="role-card-desc">Find college-approved business problems, join live tasks, submit working solutions, and build an authentic portfolio.</p>
+                <ul class="role-card-features">
+                    <li>Browse approved real-world tasks</li>
+                    <li>Join and collaborate with faculty mentor</li>
+                    <li>Submit prototype demos & source code</li>
+                    <li>Earn verified industry feedback</li>
+                </ul>
+            </div>
+            <a href="{{ url_for('switch_role', role='student') }}" class="btn btn-primary">Enter as Student →</a>
+        </div>
+
+        <!-- 2. Company -->
+        <div class="role-card">
+            <div>
+                <div class="role-card-header">
+                    <span class="role-card-icon">🏢</span>
+                    <div>
+                        <div class="role-card-title">Local Company</div>
+                        <span class="badge badge-reviewed">Green Basket Stores</span>
+                    </div>
+                </div>
+                <p class="role-card-desc">Post small, nagging operational challenges. Receive innovative student prototypes without any agency fees.</p>
+                <ul class="role-card-features">
+                    <li>Post a 1-page operational challenge</li>
+                    <li>Track college vetting & student status</li>
+                    <li>Review student solutions</li>
+                    <li>Provide direct feedback & endorsements</li>
+                </ul>
+            </div>
+            <a href="{{ url_for('switch_role', role='company') }}" class="btn btn-accent">Post a Problem →</a>
+        </div>
+
+        <!-- 3. Faculty Mentor -->
+        <div class="role-card">
+            <div>
+                <div class="role-card-header">
+                    <span class="role-card-icon">👩‍🏫</span>
+                    <div>
+                        <div class="role-card-title">Faculty Mentor</div>
+                        <span class="badge badge-approved">Dr. Sunita Rao</span>
+                    </div>
+                </div>
+                <p class="role-card-desc">Guide students on applied engineering, review progress milestones, and evaluate submissions for curriculum credit.</p>
+                <ul class="role-card-features">
+                    <li>View assigned student projects</li>
+                    <li>Review prototype code & architecture</li>
+                    <li>Provide academic & practical feedback</li>
+                    <li>Authorize projects for company review</li>
+                </ul>
+            </div>
+            <a href="{{ url_for('switch_role', role='faculty') }}" class="btn btn-secondary">Mentor Portal →</a>
+        </div>
+
+        <!-- 4. College Coordinator -->
+        <div class="role-card">
+            <div>
+                <div class="role-card-header">
+                    <span class="role-card-icon">🏛️</span>
+                    <div>
+                        <div class="role-card-title">College Coordinator</div>
+                        <span class="badge badge-pending">Prof. K. V. Raman</span>
+                    </div>
+                </div>
+                <p class="role-card-desc">Vets problems to ensure academic relevance, assigns expert faculty mentors, and tracks college-wide impact.</p>
+                <ul class="role-card-features">
+                    <li>Review pending business problems</li>
+                    <li>Approve or request modifications</li>
+                    <li>Assign faculty mentors by domain</li>
+                    <li>Monitor campus innovation metrics</li>
+                </ul>
+            </div>
+            <a href="{{ url_for('switch_role', role='coordinator') }}" class="btn btn-secondary">Coordinator Desk →</a>
+        </div>
+    </div>
+</section>
+
+<!-- Platform Metrics / Live Pulse -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon">📋</div>
+        <div>
+            <div class="stat-val">{{ total_count }}</div>
+            <div class="stat-lbl">Total Problems Shared</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">🎓</div>
+        <div>
+            <div class="stat-val">{{ approved_count }}</div>
+            <div class="stat-lbl">College-Approved Tasks</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">⭐</div>
+        <div>
+            <div class="stat-val">{{ completed_count }}</div>
+            <div class="stat-lbl">Completed Solutions with Feedback</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon">🏛️</div>
+        <div>
+            <div class="stat-val">100%</div>
+            <div class="stat-lbl">College & Faculty Supervised</div>
+        </div>
+    </div>
+</div>
+
+<!-- Explore Sample Problems (As specified in SPEC.md Page A) -->
+<section id="explore-problems" class="section-container">
+    <div class="section-header">
+        <div>
+            <h2 class="section-title">Explore Sample Problems</h2>
+            <p class="section-desc">Real, actionable challenges submitted by local businesses and approved by Bharat Institute of Technology.</p>
+        </div>
+        <a href="{{ url_for('student_dashboard') }}" class="btn btn-sm btn-secondary">View All in Student Hub →</a>
+    </div>
+
+    <div class="problems-grid">
+        {% for prob in sample_problems %}
+        <div class="problem-card">
+            <div class="problem-card-top">
+                <span class="problem-topic">{{ prob.topic }}</span>
+                {% if prob.status == 'Approved' %}
+                    <span class="badge badge-approved">Approved • Open to Join</span>
+                {% elif prob.status == 'In Progress' %}
+                    <span class="badge badge-in-progress">In Progress</span>
+                {% elif prob.status == 'Completed' %}
+                    <span class="badge badge-completed">Completed</span>
+                {% else %}
+                    <span class="badge badge-pending">{{ prob.status }}</span>
+                {% endif %}
+            </div>
+
+            <h3 class="problem-card-title">{{ prob.title }}</h3>
+            <div class="problem-company">
+                <span>🏢</span> {{ prob.company_name }}
+            </div>
+
+            <p class="problem-desc">{{ prob.description }}</p>
+
+            <div class="problem-meta">
+                <div class="meta-item">
+                    <span class="meta-label">Difficulty:</span>
+                    <span class="meta-value">{{ prob.difficulty }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Faculty Mentor:</span>
+                    <span class="meta-value">{{ prob.faculty_mentor_name or 'To be assigned' }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Suggested Deadline:</span>
+                    <span class="meta-value">{{ prob.deadline }}</span>
+                </div>
+            </div>
+
+            <div class="problem-card-actions">
+                <a href="{{ url_for('problem_detail', problem_id=prob.id) }}" class="btn btn-primary" style="flex: 1;">
+                    View Details & Workflow →
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+<!-- How it Works 6-Step Visual Bar -->
+<section class="card" style="margin-top: 40px; background: #ffffff;">
+    <h3 class="card-title">How SkillLoop Bharat Works in 6 Clear Steps</h3>
+    <p style="color: var(--slate-600); font-size: 0.92rem; margin-bottom: 20px;">
+        Designed to maintain academic quality through college gatekeeping while delivering practical industry readiness.
+    </p>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px; text-align: center;">
+        <div style="background: var(--slate-50); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--slate-200);">
+            <div style="font-size: 1.5rem; margin-bottom: 6px;">🏢</div>
+            <div style="font-weight: 700; font-size: 0.85rem; color: var(--navy-900);">1. Share Problem</div>
+            <div style="font-size: 0.78rem; color: var(--slate-600); margin-top: 4px;">Local store or SME posts a real task</div>
+        </div>
+        <div style="background: var(--slate-50); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--slate-200);">
+            <div style="font-size: 1.5rem; margin-bottom: 6px;">🏛️</div>
+            <div style="font-weight: 700; font-size: 0.85rem; color: var(--navy-900);">2. College Vets</div>
+            <div style="font-size: 0.78rem; color: var(--slate-600); margin-top: 4px;">Coordinator checks scope & assigns mentor</div>
+        </div>
+        <div style="background: var(--slate-50); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--slate-200);">
+            <div style="font-size: 1.5rem; margin-bottom: 6px;">👨‍🎓</div>
+            <div style="font-weight: 700; font-size: 0.85rem; color: var(--navy-900);">3. Student Joins</div>
+            <div style="font-size: 0.78rem; color: var(--slate-600); margin-top: 4px;">Student team starts solving with faculty</div>
+        </div>
+        <div style="background: var(--slate-50); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--slate-200);">
+            <div style="font-size: 1.5rem; margin-bottom: 6px;">👩‍🏫</div>
+            <div style="font-weight: 700; font-size: 0.85rem; color: var(--navy-900);">4. Faculty Guides</div>
+            <div style="font-size: 0.78rem; color: var(--slate-600); margin-top: 4px;">Professor reviews & approves quality</div>
+        </div>
+        <div style="background: var(--slate-50); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--slate-200);">
+            <div style="font-size: 1.5rem; margin-bottom: 6px;">💬</div>
+            <div style="font-weight: 700; font-size: 0.85rem; color: var(--navy-900);">5. Company Feedback</div>
+            <div style="font-size: 0.78rem; color: var(--slate-600); margin-top: 4px;">Business gives practical review</div>
+        </div>
+        <div style="background: var(--slate-50); padding: 16px; border-radius: var(--radius-md); border: 1px solid var(--slate-200);">
+            <div style="font-size: 1.5rem; margin-bottom: 6px;">🎓</div>
+            <div style="font-weight: 700; font-size: 0.85rem; color: var(--navy-900);">6. Portfolio Credit</div>
+            <div style="font-size: 0.78rem; color: var(--slate-600); margin-top: 4px;">Verified project added to student profile</div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SkillLoop Bharat — Learn from Real Problems. Build Real Skills.{% endblock %}</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+    <!-- Demo Role Switcher Bar (Always accessible for presentations) -->
+    <div class="demo-bar">
+        <div class="demo-bar-container">
+            <div class="demo-label">
+                <span class="live-dot"></span>
+                <strong>DEMO ROLE SWITCHER:</strong>
+            </div>
+            <div class="demo-roles">
+                <a href="{{ url_for('switch_role', role='student') }}" class="demo-role-btn {% if active_role == 'student' %}active{% endif %}" title="Aarav Sharma (Student)">
+                    <span>👨‍🎓</span> Student
+                </a>
+                <a href="{{ url_for('switch_role', role='company') }}" class="demo-role-btn {% if active_role == 'company' %}active{% endif %}" title="Rajesh Gupta (Green Basket Stores)">
+                    <span>🏢</span> Company
+                </a>
+                <a href="{{ url_for('switch_role', role='faculty') }}" class="demo-role-btn {% if active_role == 'faculty' %}active{% endif %}" title="Dr. Sunita Rao (Faculty Mentor)">
+                    <span>👩‍🏫</span> Faculty Mentor
+                </a>
+                <a href="{{ url_for('switch_role', role='coordinator') }}" class="demo-role-btn {% if active_role == 'coordinator' %}active{% endif %}" title="Prof. K. V. Raman (College Coordinator)">
+                    <span>🏛️</span> College Coordinator
+                </a>
+            </div>
+            <div class="demo-actions">
+                <form action="{{ url_for('reset_demo_data') }}" method="POST" onsubmit="return confirm('Reset all demo data back to default initial state?');">
+                    <button type="submit" class="btn-reset-demo" title="Restore default sample problems and state">🔄 Reset Sample Data</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="navbar">
+        <div class="nav-container">
+            <a href="{{ url_for('index') }}" class="brand-logo">
+                <div class="brand-icon">⚡</div>
+                <div class="brand-text">
+                    <div class="brand-name">SkillLoop <span class="bharat-badge">Bharat</span></div>
+                    <div class="brand-sub">College & Industry Problem Bridge</div>
+                </div>
+            </a>
+
+            <nav class="nav-links">
+                <a href="{{ url_for('index') }}" class="nav-item {% if request.endpoint == 'index' %}active{% endif %}">Home</a>
+                <a href="{{ url_for('student_dashboard') }}" class="nav-item {% if request.endpoint == 'student_dashboard' %}active{% endif %}">Student Hub</a>
+                <a href="{{ url_for('company_dashboard') }}" class="nav-item {% if request.endpoint == 'company_dashboard' %}active{% endif %}">Post a Problem</a>
+                <a href="{{ url_for('coordinator_dashboard') }}" class="nav-item {% if request.endpoint == 'coordinator_dashboard' %}active{% endif %}">College Approvals</a>
+                <a href="{{ url_for('faculty_dashboard') }}" class="nav-item {% if request.endpoint == 'faculty_dashboard' %}active{% endif %}">Faculty Mentoring</a>
+                <a href="{{ url_for('student_portfolio') }}" class="nav-item nav-portfolio {% if request.endpoint == 'student_portfolio' %}active{% endif %}">🎓 Student Portfolio</a>
+            </nav>
+
+            <div class="user-pill-container">
+                <div class="user-pill" title="Current Active Demo Account">
+                    <span class="user-avatar">{{ current_user.avatar }}</span>
+                    <div class="user-info">
+                        <div class="user-name">{{ current_user.name }}</div>
+                        <div class="user-role-badge">{{ active_role | upper }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Guided Workflow Stepper Bar (Helps presentation flow) -->
+    <section class="flow-guide-bar">
+        <div class="flow-container">
+            <div class="flow-title"><strong>Presentation Lifecycle:</strong></div>
+            <div class="flow-steps">
+                <a href="{{ url_for('switch_role', role='company') }}" class="flow-step {% if active_role == 'company' %}current{% endif %}">
+                    <span class="step-num">1</span> Company Shares Problem
+                </a>
+                <span class="step-arrow">→</span>
+                <a href="{{ url_for('switch_role', role='coordinator') }}" class="flow-step {% if active_role == 'coordinator' %}current{% endif %}">
+                    <span class="step-num">2</span> College Approves & Mentors
+                </a>
+                <span class="step-arrow">→</span>
+                <a href="{{ url_for('switch_role', role='student') }}" class="flow-step {% if active_role == 'student' %}current{% endif %}">
+                    <span class="step-num">3</span> Student Joins & Submits
+                </a>
+                <span class="step-arrow">→</span>
+                <a href="{{ url_for('switch_role', role='faculty') }}" class="flow-step {% if active_role == 'faculty' %}current{% endif %}">
+                    <span class="step-num">4</span> Faculty Mentor Reviews
+                </a>
+                <span class="step-arrow">→</span>
+                <a href="{{ url_for('switch_role', role='company') }}" class="flow-step">
+                    <span class="step-num">5</span> Company Endorses
+                </a>
+                <span class="step-arrow">→</span>
+                <a href="{{ url_for('student_portfolio') }}" class="flow-step {% if request.endpoint == 'student_portfolio' %}current{% endif %}">
+                    <span class="step-num">6</span> Verified Portfolio
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Flash Messages -->
+    <div class="flash-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category }}">
+                        <span class="alert-icon">
+                            {% if category == 'success' %}✅
+                            {% elif category == 'warning' %}⚠️
+                            {% elif category == 'error' %}❌
+                            {% else %}ℹ️{% endif %}
+                        </span>
+                        <div class="alert-text">{{ message }}</div>
+                        <button class="alert-close" onclick="this.parentElement.remove()">×</button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-col">
+                <div class="brand-logo footer-brand">
+                    <div class="brand-icon">⚡</div>
+                    <div class="brand-name">SkillLoop <span class="bharat-badge">Bharat</span></div>
+                </div>
+                <p class="footer-tagline">Learn from Real Problems. Build Real Skills.</p>
+                <p class="footer-desc">A college-managed bridge empowering undergraduate students across India to solve verified real-world challenges from local businesses.</p>
+                <div class="demo-badge-pill">📌 Demonstration Prototype — Sample Data Only</div>
+            </div>
+            <div class="footer-col">
+                <h4>Platform Roles</h4>
+                <ul>
+                    <li><a href="{{ url_for('switch_role', role='student') }}">Student Dashboard</a></li>
+                    <li><a href="{{ url_for('switch_role', role='company') }}">Company Problem Desk</a></li>
+                    <li><a href="{{ url_for('switch_role', role='faculty') }}">Faculty Mentoring Portal</a></li>
+                    <li><a href="{{ url_for('switch_role', role='coordinator') }}">College Coordinator Office</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Host Institution</h4>
+                <p><strong>Bharat Institute of Technology (BIT)</strong></p>
+                <p>Industry-Academia Skill & Innovation Cell</p>
+                <p>Pune / Bengaluru Regional Hub</p>
+                <p class="text-muted">Designed for evaluation & hackathon presentation.</p>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <div>© 2026 SkillLoop Bharat Prototype. All rights reserved.</div>
+            <div>Built for experiential student learning & local enterprise impact.</div>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

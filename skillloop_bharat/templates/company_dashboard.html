@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+
+{% block title %}Company Dashboard — SkillLoop Bharat{% endblock %}
+
+{% block content %}
+
+<!-- Company Banner -->
+<div class="card" style="border-left: 4px solid var(--orange-600); margin-bottom: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+        <div>
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
+                <h1 style="font-family: var(--font-heading); font-size: 1.6rem; color: var(--navy-900);">
+                    {{ current_user.company_name }} 🏢
+                </h1>
+                <span class="badge badge-reviewed">Verified Partner Business</span>
+            </div>
+            <p style="color: var(--slate-600); font-size: 0.92rem;">
+                Representative: <strong>{{ current_user.name }}</strong> ({{ current_user.title }}) • {{ current_user.location }}
+            </p>
+            <p style="font-size: 0.82rem; color: var(--slate-500); margin-top: 4px;">
+                Partner Institution: <strong>Bharat Institute of Technology, Pune</strong>
+            </p>
+        </div>
+        <div>
+            <a href="#post-problem-form" class="btn btn-accent">
+                ➕ Share a New Problem
+            </a>
+        </div>
+    </div>
+</div>
+
+<div class="tabs-container">
+    <button class="tab-btn active" data-tab="tab-posted-problems">
+        📋 Our Posted Problems ({{ problems|length }})
+    </button>
+    <button class="tab-btn" data-tab="tab-post-new">
+        ✍️ Share New Problem Form
+    </button>
+</div>
+
+<!-- Tab 1: Problems List & Reviews -->
+<div id="tab-posted-problems" class="tab-content active">
+    <div class="section-header">
+        <div>
+            <h2 class="section-title">Posted Challenges & Live Progress</h2>
+            <p class="section-desc">Track status updates as the college coordinator approves tasks, students build prototypes, and faculty reviews them.</p>
+        </div>
+    </div>
+
+    {% if problems %}
+    <div class="problems-grid">
+        {% for prob in problems %}
+        <div class="problem-card">
+            <div class="problem-card-top">
+                <span class="problem-topic">{{ prob.topic }}</span>
+                {% if prob.status == 'Pending Approval' %}
+                    <span class="badge badge-pending">Waiting for College Approval</span>
+                {% elif prob.status == 'Approved' %}
+                    <span class="badge badge-approved">Approved (Looking for Students)</span>
+                {% elif prob.status == 'In Progress' %}
+                    <span class="badge badge-in-progress">In Progress with Student</span>
+                {% elif prob.status == 'Submitted' %}
+                    <span class="badge badge-submitted">Under Faculty Review</span>
+                {% elif prob.status == 'Reviewed' %}
+                    <span class="badge badge-reviewed">Reviewed! Ready for Company Feedback</span>
+                {% elif prob.status == 'Completed' %}
+                    <span class="badge badge-completed">Completed & Endorsed</span>
+                {% elif prob.status == 'Needs Changes' %}
+                    <span class="badge badge-needs-changes">Needs Changes (From College)</span>
+                {% else %}
+                    <span class="badge badge-pending">{{ prob.status }}</span>
+                {% endif %}
+            </div>
+
+            <h3 class="problem-card-title">{{ prob.title }}</h3>
+
+            <p class="problem-desc">{{ prob.description }}</p>
+
+            <div class="problem-meta">
+                <div class="meta-item">
+                    <span class="meta-label">Current Stage:</span>
+                    <span class="meta-value">{{ prob.status }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Assigned Student:</span>
+                    <span class="meta-value">{{ prob.assigned_student_name or 'Pending Assignment' }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">Faculty Mentor:</span>
+                    <span class="meta-value">{{ prob.faculty_mentor_name or 'Under College Assignment' }}</span>
+                </div>
+            </div>
+
+            <!-- Case 1: Needs Company Feedback (Student submitted, Faculty reviewed!) -->
+            {% if prob.status == 'Reviewed' or (prob.submission_id and not prob.company_feedback) %}
+            <div style="background: var(--orange-50); border: 1px solid #fed7aa; padding: 14px; border-radius: var(--radius-md); margin-bottom: 14px;">
+                <div style="font-weight: 700; color: var(--orange-600); font-size: 0.85rem; margin-bottom: 4px;">
+                    🎉 Student Solution Ready for Your Evaluation!
+                </div>
+                <p style="font-size: 0.82rem; color: #9a3412; margin-bottom: 8px;">
+                    <strong>Solution Title:</strong> {{ prob.submission_title }}
+                </p>
+                {% if prob.faculty_feedback %}
+                <p style="font-size: 0.8rem; color: #475569; margin-bottom: 10px; font-style: italic;">
+                    <strong>Faculty Note:</strong> "{{ prob.faculty_feedback }}"
+                </p>
+                {% endif %}
+
+                <!-- Feedback Form -->
+                <form action="{{ url_for('give_company_feedback', problem_id=prob.id) }}" method="POST">
+                    <div class="form-group" style="margin-bottom: 8px;">
+                        <label class="form-label" style="font-size: 0.8rem;">Rating (1 to 5 Stars):</label>
+                        <select name="company_rating" class="form-control" style="padding: 6px 10px; font-size: 0.85rem;">
+                            <option value="5" selected>⭐⭐⭐⭐⭐ (5 - Outstanding & Practical)</option>
+                            <option value="4">⭐⭐⭐⭐ (4 - Very Useful)</option>
+                            <option value="3">⭐⭐⭐ (3 - Acceptable Effort)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 10px;">
+                        <label class="form-label" style="font-size: 0.8rem;">Your Feedback / Testimonial for Student:</label>
+                        <textarea name="company_feedback" class="form-control" rows="2" placeholder="e.g. This solution solves our shelf restocking delay. Great initiative by the student team!" required style="font-size: 0.85rem;"></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-accent btn-sm" style="width: 100%;">
+                        Submit Company Feedback →
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+
+            <!-- Case 2: Feedback already given (Completed) -->
+            {% if prob.company_feedback %}
+            <div style="background: var(--emerald-50); border: 1px solid #a7f3d0; padding: 10px 14px; border-radius: var(--radius-md); margin-bottom: 14px; font-size: 0.82rem;">
+                <div style="font-weight: 700; color: #065f46; display: flex; justify-content: space-between;">
+                    <span>Company Endorsement Recorded</span>
+                    <span>{% for i in range(prob.company_rating or 5) %}⭐{% endfor %}</span>
+                </div>
+                <p style="color: #065f46; margin-top: 4px; font-style: italic;">"{{ prob.company_feedback }}"</p>
+            </div>
+            {% endif %}
+
+            <div class="problem-card-actions">
+                <a href="{{ url_for('problem_detail', problem_id=prob.id) }}" class="btn btn-secondary" style="flex: 1;">
+                    View Task Overview →
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="card" style="text-align: center; padding: 40px;">
+        <p style="color: var(--slate-600); margin-bottom: 12px;">No problems posted yet.</p>
+        <button class="btn btn-accent" onclick="document.querySelector('[data-tab=tab-post-new]').click();">
+            Post Your First Problem
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Tab 2: Share Problem Form (As specified in SPEC.md Page D) -->
+<div id="tab-post-new" class="tab-content">
+    <div class="card" id="post-problem-form" style="max-width: 800px; margin: 0 auto;">
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+            <span style="font-size: 1.5rem;">📝</span>
+            <h2 class="card-title" style="margin-bottom: 0;">Share a Real Problem with College Students</h2>
+        </div>
+        <p style="color: var(--slate-600); font-size: 0.9rem; margin-bottom: 24px;">
+            Post a small, self-contained operational challenge. Bharat Institute of Technology coordinators will review it and assign a faculty mentor to guide students.
+        </p>
+
+        <form action="{{ url_for('post_problem') }}" method="POST">
+            <div class="form-group">
+                <label class="form-label">Problem Title *</label>
+                <input type="text" name="title" class="form-control" placeholder="e.g. Simple Stock Tracker for a Local Grocery Shop" required>
+                <span class="form-help">A concise title summarizing your challenge.</span>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Domain / Topic *</label>
+                    <input type="text" name="topic" class="form-control" placeholder="e.g. Retail Inventory, Web UX, Local Logistics" required>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Suggested Deadline</label>
+                    <input type="text" name="deadline" class="form-control" value="15 Dec 2026" placeholder="e.g. 15 Dec 2026">
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label class="form-label">Difficulty Level</label>
+                    <select name="difficulty" class="form-control">
+                        <option value="Beginner">Beginner (1-2 weeks)</option>
+                        <option value="Moderate" selected>Moderate (2-4 weeks)</option>
+                        <option value="Advanced">Advanced (4-6 weeks)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Company / Business Name</label>
+                    <input type="text" name="company_name" class="form-control" value="{{ current_user.company_name }}" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Problem Description & Current Bottleneck *</label>
+                <textarea name="description" class="form-control" rows="3" placeholder="Describe the problem you are facing in simple words (e.g. Our shop struggles to know which products run low before evening rushes...)" required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Student Task (What should they build or suggest?) *</label>
+                <textarea name="student_task" class="form-control" rows="2" placeholder="e.g. Suggest and demonstrate a simple way to list products, record quantities, and highlight low-stock items..." required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Expected Result / Deliverable *</label>
+                <textarea name="expected_result" class="form-control" rows="2" placeholder="e.g. A basic working web demo or clear clickable design prototype with sample products..." required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Suggested Skills</label>
+                <input type="text" name="required_skills" class="form-control" value="Problem-solving, basic web design, teamwork">
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+                <button type="submit" class="btn btn-accent btn-lg">
+                    🚀 Submit Problem for College Approval
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
